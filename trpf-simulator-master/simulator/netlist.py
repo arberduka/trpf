@@ -62,11 +62,16 @@ def load(netlist):
         properties['trips'].append('Overall')
         properties['agents'] = [None for trip in range(ntrips)]
     
+    #AD The file is once again opened. The line is split using shell syntax, and stored in a list
+    #called args. The first argument is removed from the list and stored in a string called command.
+    #Keyword arguments are stored in kwargs; these arguments are split with = as the delimiter. They
+    #are stored in a hash, so for example "index=1" would be stored like this: {'index': '1'} where
+    #index is the key and 1 is the value. posargs stores arguments that don't have = in them. 
     with open(nlpath, 'r') as f:
         for line in f:
             if line[0] == '#' or len(line.strip()) == 0:
                 continue
-
+	
             args = shlex.split(line.lower().strip())
             command = args.pop(0)
 
@@ -80,6 +85,11 @@ def load(netlist):
             else:
                 pass
             
+	    #AD If the command is edge, the first argument is called node 1 in a hash called "row", and
+            #the second argument is called node 2. If fft is in kwargs, the update method adds the key (fft) 
+            #and value of fft to the "row" hash. The same is done for ddt. If neither of them are declared
+            #in the netlist file, the values for fft and ddt are set to 0. 
+	    #AD I can not make much sense of the pandas library at the moment...  
             if command == 'edge':
                 if len(args) >= 2:
                     row = {'node 1': args[0], 'node 2': args[1]}
@@ -95,7 +105,8 @@ def load(netlist):
                     [properties['graph'], pd.DataFrame(row, index=[0], 
                         columns=['node 1', 'node 2', 'fft', 'ddt'])], 
                     ignore_index=True)
-             
+            
+            #AD If the command is trip, then the routes property... FINISH THIS ON MONDAY
             if command == 'trip':
                 properties['routes'][int(kwargs['index'])] \
                     = [[] for i in range(int(kwargs['routes']))] 
