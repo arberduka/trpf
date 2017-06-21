@@ -26,7 +26,6 @@ edge S2 R  fft=0  ddt=0
 edge R  S  fft=20 ddt=0.001
 edge S  D2 fft=0  ddt=0
 edge S2 M  fft=0  ddt=0
-# edge M  N  fft=20  ddt=0.1
 edge N  D2 fft=0  ddt=0
 
 ### Trip and route definition statements ######################################
@@ -40,29 +39,7 @@ route S2,R,S,D2 trip=1 route=1 so=175
 
 
 ### Algorithm setting statements ##############################################
-weights 5:3 20:5 50:7
 weights 10:3 20:5 50:7
-weights 15:3 20:5 50:7
-
-weights 10:3 10:5 50:7
-weights 10:3 20:5 50:7
-weights 10:3 30:5 50:7
-
-weights 10:3 20:5 25:7
-weights 10:3 20:5 50:7
-weights 10:3 20:5 75:7
-
-weights 10:1 20:5 50:7
-weights 10:3 20:5 50:7
-weights 10:5 20:5 50:7
-
-weights 10:3 20:3 50:7
-weights 10:3 20:5 50:7
-weights 10:3 20:7 50:7
-
-weights 10:3 20:5 50:5
-weights 10:3 20:5 50:7
-weights 10:3 20:5 50:9
 
 
 
@@ -77,9 +54,4 @@ weights 10:3 20:5 50:9
 #   Where values is any valid Python expression that returns an iterator over
 #       numeric values, ex "[0,1,2]", "range(3)". 
 #       The expression should be quoted
-trpf g=0.5 t=3 p=0.7 steps=200
-
-
-
-
-
+trpf g=[0.2,0.3,0.5,0.7] t=[1,3,5,10,15,25] p=[0,0.3,0.5,0.7,0.9] steps=200
