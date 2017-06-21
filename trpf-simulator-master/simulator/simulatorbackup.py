@@ -13,8 +13,7 @@ class Agent():
         self.tag = tag
         sorted_inds = np.argsort(np.array(thresholds))[::-1]
         self.thresholds = np.array(thresholds)[sorted_inds]
-        self.weights = np.array(weights)
-        print(np.array(weights))
+        self.weights = np.array(weights)[sorted_inds]
         self.change_percent = change_percent
         self.route_count = len(routes[trip])
         self.trip = trip

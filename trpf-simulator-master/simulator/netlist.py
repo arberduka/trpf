@@ -18,7 +18,7 @@ def load(netlist):
     #before .ntl in the argument given to load. graph is a 2D data structure with labeled axes.
     #routes is an empty hash, thresholds and weights are empty arrays, etc. The default value
     #for steps is 200.
-        properties = {
+    properties = {
         'name': netlist.split('.ntl')[0], 
         'graph': pd.DataFrame(),
         'routes': {},
@@ -106,7 +106,16 @@ def load(netlist):
                         columns=['node 1', 'node 2', 'fft', 'ddt'])], 
                     ignore_index=True)
             
-            #AD If the command is trip, then the routes property... FINISH THIS ON MONDAY
+            #AD If the command is trip, then the routes property has empty arrays initialized for the number
+	    #of routes in that trip. For example, if index=0 and there are 2 routes on trip 0, then
+	    #properties['routes'] would look like {0: [ [], [] ], ...}
+	    #The optimums property has an empty array initialized, where the number of elements is the number
+	    #of routes in that trip. If index=0 and there are 2 routes, then properties['optimums'] looks 
+	    #like {0: [None, None], ...}
+	    #The name (an SD Pair, for example S1D1) is assigned to the trips property for the current trip
+	    #number, in capital letters (upper). 
+	    #The agents property has assigned to it the number of agents on the current trip.
+
             if command == 'trip':
                 properties['routes'][int(kwargs['index'])] \
                     = [[] for i in range(int(kwargs['routes']))] 
@@ -117,11 +126,26 @@ def load(netlist):
                 properties['agents'][int(kwargs['index'])] \
                     = int(kwargs['agents'])
 
+	    #AD If the command is route, trip is set equal to the trip number. route is set equal to route
+	    #number. If trip=0. the number of routes on that trip is 2, and route=0, then properties['routes']
+	    #would look like {0: [['s1', 'p', 'q', 'd1'], []], ...} assuming that the route is S1,P,Q,D1.
+	    #This is the sequence nodes are traveled to for this particular route.
+	    #The system optimum for each route in each trip is assigned; if trip=0, route=0, and so=175, 
+	    #'optimums' would look like {0: [175, None], ...}. None would be changes when the second route on
+	    #this trip is parsed through.
+
             if command == 'route':
                 trip = int(kwargs['trip'])
                 route = int(kwargs['route'])
                 properties['routes'][trip][route] = args[0].split(',')
                 properties['optimums'][trip][route] = int(kwargs['so'])
+
+	    #AD Array of 0s is added to the end of the thresholds property, with the number of 0s equal to
+	    #the number of different congestion multiplier values. The same is done for the weights property.
+	    #The for loop replaces these zeroes with the respective thresholds and weights for each "level"
+	    #of traffic congestion (low, medium, high). 
+	    #If the line being parsed is "weights 10:3 20:5 50:7", the number before the colon is the threshold
+	    #and the number after the colon is the associated weight.
 
             if command == 'weights':
                 properties['thresholds'].append([0 for bp in args])
@@ -129,7 +153,11 @@ def load(netlist):
                 for i, breakpoint in enumerate(args):
                     cars, weight = breakpoint.split(':')
                     properties['thresholds'][-1][i] = int(cars)
-                    properties['weights'][-1][i] = int(weight)
+                    properties['weights'][-1][i] = float(weight)
+
+	    #AD If command is trpf and there are at least 3 arguments, gvals is assigned the value kwargs['g'].
+	    #If kwargs['g'] is a list, it is assigned directly to the key 'g' of the property 'trpf';
+	    #if it isn't a list, it is a single element and is first put into an array then passed to key 'g'.
 
             if command == 'trpf':
                 if len(args) >= 3:
